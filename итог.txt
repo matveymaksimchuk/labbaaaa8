@@ -1,0 +1,248 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    // Класс для пользователей
+    public class User
+    {
+        public string Login { get; set; }
+        public string Password { get; set; }
+        public string Role { get; set; }
+
+        public User(string login, string password, string role)
+        {
+            Login = login;
+            Password = password;
+            Role = role;
+        }
+    }
+
+    // Список пользователей
+    private static List<User> users = new List<User>
+    {
+        new User("ad", "ad", "Администратор"),
+        new User("bu", "bu", "Бухгалтер"),
+        new User("ka", "ka", "Кассир"),
+        new User("kl", "kl", "Кладовщик"),
+        new User("po", "po", "Покупатель"),
+        new User("sk", "sk", "Склад")
+    };
+
+    // Данные для работы
+    private static List<string> orders = new List<string> { "Заказ №1", "Заказ №2" };
+    private static Dictionary<string, decimal> products = new Dictionary<string, decimal>
+    {
+        { "Товар1", 100m },
+        { "Товар2", 200m }
+    };
+
+    static void Main(string[] args)
+    {
+        while (true)
+        {
+            Console.WriteLine("Добро пожаловать в систему!");
+            Console.Write("Введите логин: ");
+            string login = Console.ReadLine();
+            Console.Write("Введите пароль: ");
+            string password = Console.ReadLine();
+
+            User currentUser = users.Find(u => u.Login == login && u.Password == password);
+
+            if (currentUser != null)
+            {
+                Console.WriteLine($"Вы вошли как {currentUser.Role}.");
+                HandleFunctions(currentUser);
+            }
+            else
+            {
+                Console.WriteLine("Неверный логин или пароль.");
+            }
+
+            Console.WriteLine("Для выхода нажмите 'Q', для продолжения любую клавишу...");
+            if (Console.ReadKey(true).Key == ConsoleKey.Q)
+                break;
+        }
+    }
+
+    static void HandleFunctions(User user)
+    {
+        bool continueUsing = true;
+        while (continueUsing)
+        {
+            switch (user.Role)
+            {
+                case "Администратор":
+                    AdminFunctions();
+                    break;
+                case "Бухгалтер":
+                    ViewOrders();
+                    break;
+                case "Кассир":
+                    CashierFunctions();
+                    break;
+                case "Кладовщик":
+                    CheckStock();
+                    break;
+                case "Покупатель":
+                    ViewProducts();
+                    break;
+                case "Склад":
+                    WarehouseFunctions();
+                    break;
+            }
+
+            Console.WriteLine("\nВы хотите выполнить ещё одну функцию? (y/n)");
+            continueUsing = Console.ReadLine().ToLower() == "y";
+        }
+    }
+
+    static void AdminFunctions()
+    {
+        Console.WriteLine("\nВыберите действие:");
+        Console.WriteLine("1. Посмотреть заказы");
+        Console.WriteLine("2. Посмотреть товары");
+        Console.WriteLine("3. Проверить товар на складе");
+        Console.WriteLine("4. Добавить/удалить товар");
+        Console.WriteLine("5. Изменить цену товара");
+        Console.WriteLine("6. Добавить/удалить заказ");
+        int choice = int.Parse(Console.ReadLine());
+
+        switch (choice)
+        {
+            case 1:
+                ViewOrders();
+                break;
+            case 2:
+                ViewProducts();
+                break;
+            case 3:
+                CheckStock();
+                break;
+            case 4:
+            case 5:
+                WarehouseFunctions();
+                break;
+            case 6:
+                CashierFunctions();
+                break;
+            default:
+                Console.WriteLine("Неверный выбор.");
+                break;
+        }
+    }
+
+    static void ViewOrders()
+    {
+        Console.WriteLine("\nСписок заказов:");
+        foreach (var order in orders)
+        {
+            Console.WriteLine(order);
+        }
+    }
+static void ViewProducts()
+    {
+        Console.WriteLine("\nСписок товаров:");
+        foreach (var product in products)
+        {
+            Console.WriteLine($"{product.Key}: {product.Value} руб.");
+        }
+    }
+
+    static void CashierFunctions()
+    {
+        Console.WriteLine("\nВыберите действие:");
+        Console.WriteLine("1. Посмотреть цены товаров");
+        Console.WriteLine("2. Добавить заказ");
+        Console.WriteLine("3. Удалить заказ");
+        int choice = int.Parse(Console.ReadLine());
+
+        switch (choice)
+        {
+            case 1:
+                ViewProducts();
+                break;
+            case 2:
+                Console.Write("Введите название нового заказа: ");
+                string newOrder = Console.ReadLine();
+                orders.Add(newOrder);
+                Console.WriteLine("Заказ добавлен.");
+                break;
+            case 3:
+                Console.Write("Введите название заказа для удаления: ");
+                string orderToDelete = Console.ReadLine();
+                if (orders.Remove(orderToDelete))
+                {
+                    Console.WriteLine("Заказ удалён.");
+                }
+                else
+                {
+                    Console.WriteLine("Такой заказ не найден.");
+                }
+                break;
+            default:
+                Console.WriteLine("Неверный выбор.");
+                break;
+        }
+    }
+
+    static void CheckStock()
+    {
+        Console.WriteLine("\nТовары на складе:");
+        foreach (var product in products)
+        {
+            Console.WriteLine(product.Key);
+        }
+    }
+
+    static void WarehouseFunctions()
+    {
+        Console.WriteLine("\nВыберите действие:");
+        Console.WriteLine("1. Добавить товар");
+        Console.WriteLine("2. Удалить товар");
+        Console.WriteLine("3. Изменить цену товара");
+        int choice = int.Parse(Console.ReadLine());
+
+        switch (choice)
+        {
+            case 1:
+                Console.Write("Введите название нового товара: ");
+                string newProduct = Console.ReadLine();
+                Console.Write("Введите цену нового товара: ");
+                decimal price = decimal.Parse(Console.ReadLine());
+                products[newProduct] = price;
+                Console.WriteLine("Товар добавлен.");
+                break;
+            case 2:
+                Console.Write("Введите название товара для удаления: ");
+                string productToDelete = Console.ReadLine();
+                if (products.Remove(productToDelete))
+                {
+                    Console.WriteLine("Товар удалён.");
+                }
+                else
+                {
+                    Console.WriteLine("Такой товар не найден.");
+                }
+                break;
+            case 3:
+                Console.Write("Введите название товара для изменения цены: ");
+                string productToUpdate = Console.ReadLine();
+                if (products.ContainsKey(productToUpdate))
+                {
+                    Console.Write("Введите новую цену: ");
+                    decimal newPrice = decimal.Parse(Console.ReadLine());
+                    products[productToUpdate] = newPrice;
+                    Console.WriteLine("Цена изменена.");
+                }
+                else
+                {
+                    Console.WriteLine("Такой товар не найден.");
+                }
+                break;
+            default:
+                Console.WriteLine("Неверный выбор.");
+                break;
+        }
+    }
+}
